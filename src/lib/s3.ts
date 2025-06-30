@@ -6,7 +6,8 @@ const s3 = new S3Client({
     credentials: {
         accessKeyId: process.env.HETZNER_ACCESS_KEY!,
         secretAccessKey: process.env.HETZNER_SECRET_KEY!,
-    }
+    },
+    forcePathStyle: true,
 });
 
 export { s3 };

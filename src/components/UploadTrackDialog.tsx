@@ -63,6 +63,9 @@ export function UploadTrackDialog() {
       const uploadResponse = await fetch(signedUrl, {
         method: 'PUT',
         body: songFile,
+        headers: {
+            'Content-Type': songFile.type,
+        }
       });
 
       if (!uploadResponse.ok) {

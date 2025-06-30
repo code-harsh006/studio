@@ -18,8 +18,7 @@ export async function getPresignedUrl(file: {name: string, type: string}) {
 
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
 
-    const endpointUrl = new URL(process.env.HETZNER_ENDPOINT!);
-    const publicUrl = `${endpointUrl.protocol}//${process.env.HETZNER_BUCKET_NAME}.${endpointUrl.host}/${fileName}`;
+    const publicUrl = `${process.env.HETZNER_ENDPOINT!}/${process.env.HETZNER_BUCKET_NAME!}/${fileName}`;
 
     return { signedUrl, publicUrl };
 }
