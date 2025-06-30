@@ -16,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { UploadCloud, Loader2 } from 'lucide-react';
 import {
@@ -27,7 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
+import { getPresignedUrl, addSong as addSongAction } from '@/app/actions';
 
 const uploadSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -51,26 +50,55 @@ export function UploadTrackDialog() {
     }
   });
 
-  const onSubmit = (data: UploadFormValues) => {
+  const onSubmit = async (data: UploadFormValues) => {
     setIsUploading(true);
-    // Simulate S3 upload
-    setTimeout(() => {
-      const newSong = {
-        id: Date.now(),
+    try {
+      const songFile = data.songFile[0];
+      
+      const { signedUrl, publicUrl } = await getPresignedUrl({
+          name: songFile.name,
+          type: songFile.type
+      });
+
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        body: songFile,
+        headers: {
+            'Content-Type': songFile.type,
+        }
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Song upload failed.');
+      }
+
+      const newSongData = {
         title: data.title,
         artist: data.artist,
         albumArtUrl: `https://placehold.co/300x300/9400D3/ffffff`,
-        songUrl: URL.createObjectURL(data.songFile[0]),
+        songUrl: publicUrl,
       };
-      addSong(newSong);
-      setIsUploading(false);
-      setOpen(false);
-      form.reset();
+
+      const addedSong = await addSongAction(newSongData);
+
+      addSong(addedSong);
+
       toast({
         title: "Track uploaded!",
         description: `${data.title} by ${data.artist} is now in your library.`,
       });
-    }, 2000);
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: "Upload failed",
+        description: "Something went wrong during upload. Please try again.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import type { Song } from '@/types';
-import { initialSongs } from '@/lib/songs';
+import { getSongs } from '@/app/actions';
 
 interface PlayerContextType {
   isPlaying: boolean;
@@ -23,7 +23,7 @@ interface PlayerContextType {
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [playlist, setPlaylist] = useState<Song[]>(initialSongs);
+  const [playlist, setPlaylist] = useState<Song[]>([]);
   const [currentSongIndex, setCurrentSongIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -33,6 +33,14 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentSong = currentSongIndex !== null ? playlist[currentSongIndex] : null;
+  
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const songs = await getSongs();
+      setPlaylist(songs);
+    };
+    fetchSongs();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

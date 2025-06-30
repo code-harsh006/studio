@@ -4,17 +4,8 @@ import Image from 'next/image';
 import { usePlayer } from '@/context/PlayerContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from './ui/button';
 import { Play, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const songToAiHintMap: Record<number, string> = {
-  1: 'cosmic nebula',
-  2: 'neon city',
-  3: 'deep ocean',
-  4: 'vast desert',
-  5: 'enchanted forest',
-}
 
 export function RecentUploads() {
   const { playlist, playSong, currentSong, isPlaying } = usePlayer();
@@ -46,7 +37,7 @@ export function RecentUploads() {
                         "rounded-md transition-all duration-300",
                         currentSong?.id === song.id && isPlaying && "opacity-40"
                       )}
-                      data-ai-hint={songToAiHintMap[song.id] || 'music album'}
+                      data-ai-hint="music album"
                     />
                     <div className={cn(
                         "absolute inset-0 flex items-center justify-center bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300",
